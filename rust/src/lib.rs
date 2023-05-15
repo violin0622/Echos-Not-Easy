@@ -19,7 +19,6 @@ pub fn connect_timeout_retry(addr: &SocketAddr, timeout: Duration) -> io::Result
                 if e.kind() == ErrorKind::ConnectionRefused
                     || e.kind() == ErrorKind::Interrupted =>
             {
-                // println!("{:?}, {:?}, {:?}", next_timeout, begin.elapsed(), e);
                 next_timeout = timeout.saturating_sub(begin.elapsed());
             }
             Err(e) => return Err(e),

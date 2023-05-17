@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     loop {
         sleep(Duration::from_secs(1));
         stream.write(b"ping")?;
-        stream.read(&mut buf[..])?;
-        println!("{:?}", buf);
+        let n = stream.read(&mut buf[..])?;
+        println!("{:?}", String::from_utf8_lossy(&buf[..n]));
     }
 }

@@ -33,7 +33,7 @@ fn handle_echo(mut sock: TcpStream) -> Result<(), Box<dyn std::error::Error>> {
             }
             Err(e) if e.kind() == ErrorKind::WouldBlock => continue,
             Err(e) => {
-                println!("rcv req: {e}");
+                println!("rcv req: {e}, buf: {buf:?}");
                 return Err(Box::new(e));
             }
         }

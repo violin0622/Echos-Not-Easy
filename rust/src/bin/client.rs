@@ -2,7 +2,7 @@
 use std::{
     fmt,
     io::{self, Error, ErrorKind, Read, Write},
-    net::{SocketAddr, TcpStream},
+    net::{SocketAddr, TcpStream, ToSocketAddrs},
     thread::sleep,
     time::Duration,
 };
@@ -14,9 +14,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut correlation_id: u8 = 0;
     let mut buf: [u8; 4] = [0; 4];
+    let sock_addr = "localhost:8080"
+        .to_socket_addrs()?
+        .into_iter()
+        .next()
+        .unwrap();
     'outer: loop {
         let mut sock = connect_timeout_retry(
-            &SocketAddr::new("127.0.0.1".parse()?, 8080),
+            &sock_addr,
+            // &SocketAddr::new("localhost".to_socket_addrs()?, 8080),
             std::time::Duration::from_secs(5),
         )
         .expect("Cannot connect to server");

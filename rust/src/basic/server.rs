@@ -13,6 +13,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (mut stream, _addr) = sock.accept()?;
     loop {
         let n = stream.read(&mut buf[..])?;
+        if n == 0 {
+            break;
+        }
         stream.write(&buf[..n])?;
     }
+    Ok(())
 }

@@ -14,3 +14,11 @@ path = "src/basic/client.rs"
 [[bin]]
 name = "basic-server"
 path = "src/basic/server.rs"
+
+[[bin]]
+name = "retry-server"
+path = "src/retry/server.rs"
+
+[[bin]]
+name = "retry-client"
+path = "src/retry/client.rs.rs"

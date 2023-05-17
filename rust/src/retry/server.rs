@@ -32,6 +32,10 @@ fn handle_echo(mut sock: TcpStream) -> Result<(), Box<dyn std::error::Error>> {
                 println!("req: {}", req.num);
             }
             Err(e) if e.kind() == ErrorKind::WouldBlock => continue,
+            Err(e) if e.kind() == ErrorKind::UnexpectedEof => {
+                println!("client closed connection.");
+                return Ok(());
+            }
             Err(e) => {
                 println!("rcv req: {e}, buf: {buf:?}");
                 return Err(Box::new(e));

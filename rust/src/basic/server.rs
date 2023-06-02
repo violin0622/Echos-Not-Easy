@@ -16,7 +16,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if n == 0 {
             break;
         }
-        stream.write(&buf[..n])?;
+        println!("{}", String::from_utf8_lossy(&buf[..n]));
+        stream.write(b"pong")?;
     }
     Ok(())
 }

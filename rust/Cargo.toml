@@ -6,6 +6,12 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+turmoil = "*"
+# tokio = {version="*", features=["full"], package="madsim-tokio"}
+tokio = "*"
+rand = "*"
+madsim = "*"
+snafu = "*"
 
 [[bin]]
 name = "basic-client"
@@ -15,10 +21,10 @@ path = "src/basic/client.rs"
 name = "basic-server"
 path = "src/basic/server.rs"
 
-[[bin]]
-name = "retry-server"
-path = "src/retry/server.rs"
+# [[bin]]
+# name = "retry-server"
+# path = "src/retry/server.rs"
 
-[[bin]]
-name = "retry-client"
-path = "src/retry/client.rs.rs"
+# [[bin]]
+# name = "retry-client"
+# path = "src/retry/client.rs"

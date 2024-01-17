@@ -2,26 +2,34 @@
 use std::{
     char,
     io::{self, ErrorKind, Read, Write},
-    net::{SocketAddr, TcpListener, TcpStream},
+    net::SocketAddr,
     str,
     time::{self, Duration},
 };
 
+#[cfg(not(test))]
+use tokio::net::TcpStream;
+#[cfg(test)]
+use turmoil::net::TcpStream;
+
+use tokio::time::Instant;
+
 // connect_timeout_retry 会记录起始时间，然后尝试 connect, 如果成功则返回；
 // 如果失败则检查是否超过了 timeout，如果超过了 timeout 则返回错误，否则会再次重试.
-pub fn connect_timeout_retry(addr: &SocketAddr, timeout: Duration) -> io::Result<TcpStream> {
+pub async fn connect_timeout_retry(addr: &SocketAddr, timeout: Duration) -> io::Result<TcpStream> {
     let mut next_timeout = timeout;
-    let begin = time::Instant::now();
+    let begin = Instant::now();
     while !next_timeout.is_zero() {
-        match TcpStream::connect_timeout(addr, next_timeout) {
-            Ok(sock) => return Ok(sock),
-            Err(e)
+        match tokio::time::timeout(next_timeout, TcpStream::connect(addr)).await {
+            Ok(Ok(sock)) => return Ok(sock),
+            Ok(Err(e))
                 if e.kind() == ErrorKind::ConnectionRefused
                     || e.kind() == ErrorKind::Interrupted =>
             {
                 next_timeout = timeout.saturating_sub(begin.elapsed());
             }
-            Err(e) => return Err(e),
+            Ok(Err(e)) => return Err(e),
+            Err(_) => return Err(io::Error::new(ErrorKind::TimedOut, "connect timed out")),
         }
     }
     Err(io::Error::new(ErrorKind::TimedOut, "connect timed out"))
@@ -74,5 +82,20 @@ impl TryFrom<Msg> for [u8; 4] {
     type Error = &'static str;
     fn try_from(msg: Msg) -> Result<Self, Self::Error> {
         Ok([msg.num, msg.data[0], msg.data[1], msg.data[2]])
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use turmoil::Builder;
+
+    #[test]
+    fn test_connect() -> turmoil::Result {
+        let mut sim = Builder::new()
+            .epoch(std::time::SystemTime::UNIX_EPOCH)
+            // .rng(rand::rngs::StdRng::seed_from_u64(10))
+            .ip_version(turmoil::IpVersion::V6)
+            .build();
+        sim.run()
     }
 }
